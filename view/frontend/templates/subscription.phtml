@@ -1,0 +1,51 @@
+<?php
+/** @var \O2TI\SubscriptionPayment\Block\Account\Subscription $block */
+$subscriptions = $block->getSubscriptions();
+?>
+
+<?php if ($subscriptions->getSize() > 0): ?>
+    <div class="table-wrapper">
+        <table class="data table table-order-items" id="my-subscriptions-table">
+            <thead>
+                <tr>
+                    <th scope="col" class="col id"><?= $block->escapeHtml(__('Subscription ID')) ?></th>
+                    <th scope="col" class="col date"><?= $block->escapeHtml(__('Created At')) ?></th>
+                    <th scope="col" class="col status"><?= $block->escapeHtml(__('Status')) ?></th>
+                    <th scope="col" class="col cycle"><?= $block->escapeHtml(__('Cycle')) ?></th>
+                    <th scope="col" class="col date"><?= $block->escapeHtml(__('Next Cycle')) ?></th>
+                    <th scope="col" class="col actions">&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($subscriptions as $subscription): ?>
+                    <tr>
+                        <td data-th="<?=$block->escapeHtml(__('Subscription ID')) ?>" class="col id">
+                            <?= $block->escapeHtml($subscription->getSubscriptionId()) ?>
+                        </td>
+                        <td data-th="<?=$block->escapeHtml(__('Created At')) ?>" class="col date">
+                            <?= $block->escapeHtml($block->formatDate($subscription->getCreatedAt())) ?>
+                        </td>
+                        <td data-th="<?=$block->escapeHtml(__('Status')) ?>" class="col status">
+                            <?= $block->escapeHtml($block->getStateLabel($subscription->getState())) ?>
+                        </td>
+                        <td data-th="<?=$block->escapeHtml(__('Cycle')) ?>" class="col cycle">
+                            <?= $block->escapeHtml(
+                                $block->getCycleLabel($subscription->getCycle())
+                            ) ?>
+                        </td>
+                        <td data-th="<?=$block->escapeHtml(__('Next Cycle')) ?>" class="col date">
+                            <?= $block->escapeHtml(
+                                $block->formatDate($subscription->getNextCycle(), \IntlDateFormatter::FULL)
+                            ) ?>
+                        </td>
+                        <td data-th="<?=$block->escapeHtml(__('Actions')) ?>" class="col actions">
+                            criar as urls de detalhes
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+<?php else: ?>
+    <p><?= $block->escapeHtml(__('No subscriptions found.')) ?>
+<?php endif; ?>

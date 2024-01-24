@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="o2ti_payment_subscription" resource="default" engine="innodb" comment="Payment Subscription Table">
+        <column xsi:type="int" name="subscription_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Subscription ID" />
+        <column xsi:type="boolean" name="state" nullable="false" default="1" comment="State (0 or 1)"/>
+        <column xsi:type="char" name="order_id" nullable="false" length="10" comment="Increment Order ID" />
+        <column xsi:type="int" name="customer_id" nullable="false" comment="Customer ID" />
+        <column xsi:type="text" name="additional_data" nullable="true" comment="Additional Data" />
+        <column xsi:type="varchar" name="cycle" nullable="true" comment="Cycle" />
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Creation Time"/>
+        <column xsi:type="timestamp" name="next_cycle" nullable="true" comment="Next Cycle Date" />
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="subscription_id"/>
+        </constraint>
+    </table>
+</schema>

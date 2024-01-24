@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * O2TI Webkul PagBank Module.
+ *
+ * Copyright © 2023 O2TI. All rights reserved.
+ *
+ * @author    Bruno Elisei <brunoelisei@o2ti.com>
+ * @license   See LICENSE for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Console -->
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="subscription_create_new_order" xsi:type="object">O2TI\SubscriptionPayment\Console\ExecuteRecurring</item>
+            </argument>
+        </arguments>
+    </type>
+
+     <type name="O2TI\SubscriptionPayment\Controller\Account\Subscription">
+        <arguments>
+            <argument name="resultPageFactory" xsi:type="object">Magento\Framework\View\Result\PageFactory</argument>
+            <argument name="customerSession" xsi:type="object">Magento\Customer\Model\Session\Proxy</argument>
+            <argument name="subscriptionCollectionFactory" xsi:type="object">O2TI\SubscriptionPayment\Model\ResourceModel\Subscription\CollectionFactory</argument>
+        </arguments>
+    </type>
+    
+    <type name="O2TI\SubscriptionPayment\Block\Account\Subscription">
+        <arguments>
+            <argument name="context" xsi:type="object">Magento\Framework\View\Element\Template\Context</argument>
+            <argument name="subscriptionCollectionFactory" xsi:type="object">O2TI\SubscriptionPayment\Model\ResourceModel\Subscription\CollectionFactory</argument>
+            <argument name="customerSession" xsi:type="object">Magento\Customer\Model\Session\Proxy</argument>
+        </arguments>
+    </type>
+
+    <type name="PagBank\PaymentMagento\Observer\DataAssignCcObserver">
+        <plugin name="pagbank_payment_subscription_cc_data_assign_plugin" type="O2TI\SubscriptionPayment\Observer\DataAssignCcObserverPlugin" sortOrder="10" />
+    </type>
+
+    <!-- Plugin for popule subscription data -->
+    <type name="Magento\Sales\Model\Order">
+        <plugin name="custom_payment_subscription_plugin" type="O2TI\SubscriptionPayment\Plugin\OrderPlugin" sortOrder="10"/>
+    </type>
+
+    <!-- Cc Add Flag Recurring to Request -->
+    <virtualType name="PagBankCcAuthorizationRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="flag_recurring" xsi:type="string">O2TI\SubscriptionPayment\Gateway\Request\CreditCard\RecurringDataRequest</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Vault Add Flag Recurring to Request -->
+    <virtualType name="PagBankCcVaultRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="flag_recurring" xsi:type="string">O2TI\SubscriptionPayment\Gateway\Request\CreditCard\RecurringDataRequest</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Add New Config Provider for Type Recurring -->
+    <type name="Magento\Checkout\Model\CompositeConfigProvider">
+        <arguments>
+            <argument name="configProviders" xsi:type="array">
+                <item name="pagbank_flag_recurring_config_provider" xsi:type="object">O2TI\SubscriptionPayment\Model\FlagRecurringConfigProvider</item>
+            </argument>
+        </arguments>
+    </type>
+
+</config>

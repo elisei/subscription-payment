@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * O2TI Payment Magento Module.
+ *
+ * Copyright © 2023 O2TI. All rights reserved.
+ *
+ * @author    Bruno Elisei <brunoelisei@o2ti.com>
+ * @license   See LICENSE for license details.
+ */
+-->
+<include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
+    <group id="o2ti_payment_subscription_magento" translate="label comment" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+        <label>O2TI Subscription</label>
+        <field id="sub_sellers" translate="label comment tooltip" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="0">
+            <label>Cycle Options</label>
+            <frontend_model>O2TI\SubscriptionPayment\Block\Adminhtml\Form\Field\AddCycleOptions</frontend_model>
+            <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+            <config_path>o2ti/payment_subscription_magento/cycle_option</config_path>
+        </field>
+    </group>
+</include>
