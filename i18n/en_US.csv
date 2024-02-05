@@ -1,0 +1,37 @@
+"Edit your subscription","Edit your subscription"
+Options,Options
+Label,Label
+Add,Add
+"1 hour","1 hour"
+"1 day","1 day"
+"14 days","14 days"
+"1 month","1 month"
+"Invalid form key","Invalid form key"
+"Form data saved successfully","Form data saved successfully"
+"Unable to save form data","Unable to save form data"
+Time,Time
+Enable,Enable
+Disabled,Disabled
+"Order renewal carried out for initial order: %1.","Order renewal carried out for initial order: %1."
+"Error creating order %1","Error creating order %1"
+"New Order %1 criada para o pedido recorrente inicial","New Order %1 criada para o pedido recorrente inicial"
+"Subscription with ID %1 does not exist.","Subscription with ID %1 does not exist."
+"Subscription ID","Subscription ID"
+"Created At","Created At"
+Status,Status
+Cycle,Cycle
+"Next Cycle","Next Cycle"
+Actions,Actions
+"View More","View More"
+"No subscriptions found.","No subscriptions found."
+"Your next cycle is scheduled for <b>%1</b>.","Your next cycle is scheduled for <b>%1</b>."
+"There are no schedules for new cycles.","There are no schedules for new cycles."
+"Apply already in this cycle?","Apply already in this cycle?"
+Save,Save
+"Information about your subscription","Information about your subscription"
+"What is the timeframe for the new order?","What is the timeframe for the new order?"
+"Place Order","Place Order"
+"Recurring Cycle","Recurring Cycle"
+"O2TI Subscription","O2TI Subscription"
+"Cycle Options","Cycle Options"
+"My Subscriptions","My Subscriptions"

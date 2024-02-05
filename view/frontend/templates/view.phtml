@@ -1,0 +1,71 @@
+<?php
+/**
+ * O2TI Payment Subscription.
+ *
+ * Copyright © 2024 O2TI. All rights reserved.
+ *
+ * @author    Bruno Elisei <brunoelisei@o2ti.com>
+ * @license   See LICENSE for license details.
+ */
+
+/** @var \O2TI\SubscriptionPayment\Block\Subscription\View $block */
+$subscription = $block->getSubscription();
+$helperSubs = $block->getSubscriptionHelper();
+$cycle = $subscription->getCycle();
+$state = $subscription->getState();
+$date = $block->formatDate($subscription->getNextCycle(), \IntlDateFormatter::FULL, true);
+?>
+
+<?php if ($date): ?>
+    <p><?= /* @noEscape */ __('Your next cycle is scheduled for <b>%1</b>.', $date) ?></p>
+<?php else: ?>
+    <p><?= $block->escapeHtml(__('There are no schedules for new cycles.')) ?></p>
+<?php endif; ?>
+<form action="<?= $block->escapeUrl($block->getUrl('o2ti/account/editpost')) ?>"
+    method="post" class="form subscription-edit">
+    <fieldset class="fieldset additional_info">
+        <?= $block->getBlockHtml('formkey'); ?>
+        <input type="hidden" name="subscription_id" 
+            value="<?= $block->escapeHtml($subscription->getSubscriptionId()) ?>" />
+        <div class="field">
+            <label for="state" class="label">
+                <span><?= $block->escapeHtml(__('Status')) ?></span>
+            </label>
+            <div class="control">
+                <select type="select" class="input-select" name="state">
+                    <?php foreach ($helperSubs->getOptionsForState() as $_option): ?>
+                        <option value="<?= $block->escapeHtmlAttr($_option['value']) ?>"
+                                <?= $_option['value'] === (int) $state ? 'selected="selected"' : '' ?>>
+                            <?= $block->escapeHtml($_option['label']) ?>
+                        </option>
+                    <?php endforeach ?>
+                </select>
+            </div>
+        </div>
+
+        <div class="field">
+            <label for="state" class="label">
+                <span><?= $block->escapeHtml(__('Cycle')) ?></span>
+            </label>
+            <div class="control">
+                <select type="select" class="input-select" name="cycle">
+                <?php foreach ($helperSubs->getOptionsForCycle() as $_option): ?>
+                    <option value="<?= $block->escapeHtmlAttr($_option['value']) ?>"
+                            <?= $_option['value'] === $cycle ? 'selected="selected"' : '' ?>>
+                        <?= $block->escapeHtml($_option['label']) ?>
+                    </option>
+                <?php endforeach ?>
+                </select>
+                <input type="checkbox" id="use_now" name="use_now" checked/>
+                <label for="use_now"><?= $block->escapeHtml(__('Apply already in this cycle?')) ?></label>
+            </div>
+        </div>
+    </fieldset>
+    <div class="actions-toolbar">
+        <div class="primary">
+            <button type="submit" class="action tocart primary" >
+                <?= $block->escapeHtml(__('Save')) ?>
+            </button>
+        </div>
+    </div>
+</form>

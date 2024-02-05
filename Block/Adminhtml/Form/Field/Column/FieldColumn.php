@@ -81,6 +81,14 @@ class FieldColumn extends Select
             [
                 'label' => __('1 month'),
                 'value' => 'P1M',
+            ],
+            [
+                'label' => __('45 days'),
+                'value' => 'P45D',
+            ],
+            [
+                'label' => __('3 months'),
+                'value' => 'P3M',
             ]
         ];
 

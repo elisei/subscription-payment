@@ -1,3 +1,12 @@
+/**
+ * O2TI Payment Subscription.
+ *
+ * Copyright © 2024 O2TI. All rights reserved.
+ *
+ * @author    Bruno Elisei <brunoelisei@o2ti.com>
+ * @license   See LICENSE for license details.
+ */
+
 define([
     'mage/utils/wrapper'
 ], function (wrapper) {
@@ -53,6 +62,16 @@ define([
                     'label': option.label
                 };
             });
+        },
+
+        /**
+         * Get Subscription Enable
+         * @returns {Boolean}
+         */
+        getSubscriptionEnable: function () {
+            return window.checkoutConfig.o2ti_payment_subscription_magento.hasOwnProperty('enable') ?
+            window.checkoutConfig.o2ti_payment_subscription_magento.enable
+            : false;
         }
     };
 

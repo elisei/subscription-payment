@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * O2TI Payment Subscription.
+ *
+ * Copyright © 2024 O2TI. All rights reserved.
+ *
+ * @author    Bruno Elisei <brunoelisei@o2ti.com>
+ * @license   See LICENSE for license details.
+ */
+-->
 <schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
     <table name="o2ti_payment_subscription" resource="default" engine="innodb" comment="Payment Subscription Table">
@@ -8,10 +18,15 @@
         <column xsi:type="int" name="customer_id" nullable="false" comment="Customer ID" />
         <column xsi:type="text" name="additional_data" nullable="true" comment="Additional Data" />
         <column xsi:type="varchar" name="cycle" nullable="true" comment="Cycle" />
+        <column xsi:type="varchar" name="payment_method" nullable="true" comment="Payment Method" />
+        <column xsi:type="smallint" name="has_error" nullable="false" comment="Has Error" default="0" />
         <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Creation Time"/>
         <column xsi:type="timestamp" name="next_cycle" nullable="true" comment="Next Cycle Date" />
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="subscription_id"/>
         </constraint>
+    </table>
+    <table name="vault_payment_token" resource="default" engine="innodb" comment="Vault Payment Token">
+        <column xsi:type="smallint" name="use_in_subscription" nullable="false" comment="Use in Subscription" default="0" />
     </table>
 </schema>

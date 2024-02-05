@@ -32,7 +32,7 @@ class Subscription extends \Magento\Customer\Controller\AbstractAccount implemen
     /**
      * @var CollectionFactory
      */
-    protected $subsCollectionFactory;
+    protected $subscriptionFactory;
 
     /**
      * @var int
@@ -45,18 +45,18 @@ class Subscription extends \Magento\Customer\Controller\AbstractAccount implemen
      * @param Context           $context
      * @param PageFactory       $resultPageFactory
      * @param Session           $customerSession
-     * @param CollectionFactory $subsCollectionFactory
+     * @param CollectionFactory $subscriptionFactory
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
         Session $customerSession,
-        CollectionFactory $subsCollectionFactory
+        CollectionFactory $subscriptionFactory
     ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
         $this->customerSession = $customerSession;
-        $this->subsCollectionFactory = $subsCollectionFactory;
+        $this->subscriptionFactory = $subscriptionFactory;
         $this->customerId = $this->customerSession->getCustomerId();
     }
 
@@ -90,7 +90,7 @@ class Subscription extends \Magento\Customer\Controller\AbstractAccount implemen
      */
     private function getSubscriptions()
     {
-        $collection = $this->subsCollectionFactory->create();
+        $collection = $this->subscriptionFactory->create();
         $collection->addFieldToFilter('customer_id', $this->customerId);
 
         return $collection;

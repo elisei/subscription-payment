@@ -1,51 +1,72 @@
 <?php
+/**
+ * O2TI Payment Subscription.
+ *
+ * Copyright © 2024 O2TI. All rights reserved.
+ *
+ * @author    Bruno Elisei <brunoelisei@o2ti.com>
+ * @license   See LICENSE for license details.
+ */
+
 namespace O2TI\SubscriptionPayment\Block\Account;
 
 use Magento\Framework\View\Element\Template\Context;
-use O2TI\SubscriptionPayment\Model\ResourceModel\Subscription\CollectionFactory;
-use Magento\Customer\Model\Session;
+use O2TI\SubscriptionPayment\Helper\Data as SubscriptionHelper;
 use O2TI\SubscriptionPayment\Model\RecurringCycleConfigProvider as RecurringConfig;
 
 class Subscription extends \Magento\Framework\View\Element\Template
 {
-    /**
-     * @var CollectionFactory
-     */
-    protected $subsCollectionFactory;
-
-    /**
-     * @var Session
-     */
-    protected $customerSession;
-
-    /**
-     * @var CollectionFactory
-     */
-    protected $subscriptions;
-
     /**
      * @var RecurringConfig
      */
     protected $recurringConfig;
 
     /**
-     * @param Context           $context
-     * @param CollectionFactory $subsCollectionFactory
-     * @param Session           $customerSession
-     * @param RecurringConfig   $recurringConfig
-     * @param array             $data
+     * @var \O2TI\SubscriptionPayment\Model\ResourceModel\Subscription\Collection
+     */
+    protected $subscriptions;
+
+    /**
+     * @var \Magento\Framework\App\Http\Context
+     * @since 101.0.0
+     */
+    protected $httpContext;
+
+    /**
+     * @var SubscriptionHelper
+     */
+    protected $subscriptionHelper;
+
+    /**
+     * @param \Magento\Framework\View\Element\Template\Context  $context
+     * @param Context                                           $httpContext
+     * @param RecurringConfig                                   $recurringConfig
+     * @param SubscriptionHelper                                $subscriptionHelper
+     * @param array                                             $data
      */
     public function __construct(
-        Context $context,
-        CollectionFactory $subsCollectionFactory,
-        Session $customerSession,
+        \Magento\Framework\View\Element\Template\Context $context,
+        \Magento\Framework\App\Http\Context $httpContext,
         RecurringConfig $recurringConfig,
+        SubscriptionHelper $subscriptionHelper,
         array $data = []
     ) {
-        parent::__construct($context, $data);
-        $this->subsCollectionFactory = $subsCollectionFactory;
-        $this->customerSession = $customerSession;
+        $this->httpContext = $httpContext;
         $this->recurringConfig = $recurringConfig;
+        $this->subscriptionHelper = $subscriptionHelper;
+        parent::__construct($context, $data);
+        $this->_isScopePrivate = true;
+    }
+
+    /**
+     * Get Details Url
+     *
+     * @param int $subscriptionId
+     * @return string
+     */
+    public function getDetailsUrl($subscriptionId)
+    {
+        return $this->getUrl('*/subscription/view', ['subscription_id' => $subscriptionId]);
     }
 
     /**
@@ -65,48 +86,16 @@ class Subscription extends \Magento\Framework\View\Element\Template
      */
     public function getSubscriptions()
     {
-        if ($this->subscriptions === null) {
-            $customerId = $this->customerSession->getCustomerId();
-
-            $collection = $this->subsCollectionFactory->create();
-            $collection->addFieldToFilter('customer_id', 4);
-
-            $this->subscriptions = $collection;
-        }
-
         return $this->subscriptions;
     }
 
     /**
-     * Get Cycle Label
+     * Get subscription helper
      *
-     * @param string $cycle
-     * @return string
+     * @return SubscriptionHelper
      */
-    public function getCycleLabel($cycle)
+    public function getSubscriptionHelper()
     {
-        $configs = $this->recurringConfig->getConfig();
-        $options = $configs['o2ti_payment_subscription_magento']['cycle_options'];
-        
-        foreach ($options as $option) {
-            if ($option['value'] === $cycle) {
-                return $option['label'];
-            }
-        }
-        return __('Time');
-    }
-
-    /**
-     * Get State Label
-     *
-     * @param string $state
-     * @return string
-     */
-    public function getStateLabel($state)
-    {
-        if ($state) {
-            return __('Enable');
-        }
-        return __('Disabled');
+        return $this->subscriptionHelper;
     }
 }

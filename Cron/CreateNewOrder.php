@@ -1,4 +1,13 @@
 <?php
+/**
+ * O2TI Payment Subscription.
+ *
+ * Copyright © 2024 O2TI. All rights reserved.
+ *
+ * @author    Bruno Elisei <brunoelisei@o2ti.com>
+ * @license   See LICENSE for license details.
+ */
+
 namespace O2TI\SubscriptionPayment\Cron;
 
 use O2TI\SubscriptionPayment\Model\ResourceModel\Subscription\CollectionFactory;
@@ -9,7 +18,7 @@ class CreateNewOrder
     /**
      * @var CollectionFactory
      */
-    protected $subscriptionCollection;
+    protected $subscriptionFactory;
 
     /**
      * @var PlaceNewOrder
@@ -19,14 +28,14 @@ class CreateNewOrder
     /**
      * Construct.
      *
-     * @param CollectionFactory $subscriptionCollection
+     * @param CollectionFactory $subscriptionFactory
      * @param PlaceNewOrder $newOrder
      */
     public function __construct(
-        CollectionFactory $subscriptionCollection,
+        CollectionFactory $subscriptionFactory,
         PlaceNewOrder $newOrder
     ) {
-        $this->subscriptionCollection = $subscriptionCollection;
+        $this->subscriptionFactory = $subscriptionFactory;
         $this->newOrder = $newOrder;
     }
 
@@ -38,14 +47,31 @@ class CreateNewOrder
         $currentTime = date('Y-m-d H:i:s');
         $nextHourTime = date('Y-m-d H:i:s', strtotime('+2 hour', strtotime($currentTime)));
 
-        $subscriptionCollection = $this->subscriptionCollection->create();
-        $subscriptionCollection->addFieldToFilter('next_cycle', ['gteq' => $currentTime])
+        $subscriptionFactory = $this->subscriptionFactory->create();
+        $subscriptionFactory->addFieldToFilter('state', 1)
+                            ->addFieldToFilter('next_cycle', ['gteq' => $currentTime])
                             ->addFieldToFilter('next_cycle', ['lteq' => $nextHourTime]);
 
-        $orderIds = $subscriptionCollection->getColumnValues('order_id');
+        $orderIds = $subscriptionFactory->getColumnValues('order_id');
 
-        // foreach ($orderIds as $orderId) {
-        //     $this->newOrder->createOrder($orderId);
-        // }
+        foreach ($orderIds as $orderId) {
+            $this->newOrder->createOrder($orderId);
+        }
+    }
+
+    /**
+     * Find all orders in error.
+     */
+    public function recovery()
+    {
+        $subscriptionFactory = $this->subscriptionFactory->create();
+        $subscriptionFactory->addFieldToFilter('state', 1)
+                            ->addFieldToFilter('has_error', 1);
+
+        $orderIds = $subscriptionFactory->getColumnValues('order_id');
+
+        foreach ($orderIds as $orderId) {
+            $this->newOrder->createOrder($orderId);
+        }
     }
 }

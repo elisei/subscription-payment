@@ -1,0 +1,38 @@
+
+"Edit your subscription","Editar sua assinatura"
+Options,Opções
+Label,Rótulo
+Add,Adicionar
+"1 hour","1 hora"
+"1 day","1 dia"
+"14 days","14 dias"
+"1 month","1 mês"
+"Invalid form key","Chave de formulário inválida"
+"Form data saved successfully","Dados do formulário salvos com sucesso"
+"Unable to save form data","Não foi possível salvar os dados do formulário"
+Time,Tempo
+Enable,Ativar
+Disabled,Desativado
+"Order renewal carried out for initial order: %1.","Renovação do pedido realizada para o pedido inicial: %1."
+"Error creating order %1","Erro ao criar pedido %1"
+"New Order %1 criada para o pedido recorrente inicial","Nova Ordem %1 criada para o pedido recorrente inicial"
+"Subscription with ID %1 does not exist.","Assinatura com ID %1 não existe."
+"Subscription ID","ID da Assinatura"
+"Created At","Criado em"
+Status,Status
+Cycle,Ciclo
+"Next Cycle","Próximo Ciclo"
+Actions,Ações
+"View More","Ver Mais"
+"No subscriptions found.","Nenhuma assinatura encontrada."
+"Your next cycle is scheduled for <b>%1</b>.","Seu próximo ciclo está agendado para <b>%1</b>."
+"There are no schedules for new cycles.","Não há agendamentos para novos ciclos."
+"Apply already in this cycle?","Aplicar já neste ciclo?"
+Save,Salvar
+"Information about your subscription","Informações sobre sua assinatura"
+"What is the timeframe for the new order?","Qual é o período de tempo para o novo pedido?"
+"Place Order","Realizar Pedido"
+"Recurring Cycle","Ciclo Recorrente"
+"O2TI Subscription","Assinatura O2TI"
+"Cycle Options","Opções de Ciclo"
+"My Subscriptions","Minhas Assinaturas"

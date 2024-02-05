@@ -1,8 +1,8 @@
 <!--
 /**
- * PagBank Payment Magento Module.
+ * O2TI Payment Subscription.
  *
- * Copyright © 2023 PagBank. All rights reserved.
+ * Copyright © 2024 O2TI. All rights reserved.
  *
  * @author    Bruno Elisei <brunoelisei@o2ti.com>
  * @license   See LICENSE for license details.
@@ -45,6 +45,7 @@
             <each args="$parent.getRegion('before-place-order')" render=""></each>
         </div>
 
+        <!-- ko if: getSubscriptionEnable() -->
         <fieldset data-bind="attr: {class: 'fieldset payment items pagbank-payer-data ' + getCode(), id: 'payment_form_payer_form_' + getCode()}">
             <legend class="legend">
                 <span class="legend-title"><span data-bind="{i18n: 'Information about your subscription'}"></span></span>
@@ -71,6 +72,7 @@
                 </div>
             </div>
         </fieldset>
+        <!-- /ko -->
 
         <div class="actions-toolbar">
             <div class="primary">

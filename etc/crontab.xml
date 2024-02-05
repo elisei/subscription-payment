@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
+<!--
 /**
- * O2TI PagBank and ClearSales.
+ * O2TI Payment Subscription.
  *
- * Copyright © 2023 O2TI. All rights reserved.
+ * Copyright © 2024 O2TI. All rights reserved.
  *
  * @author    Bruno Elisei <brunoelisei@o2ti.com>
  * @license   See LICENSE for license details.
  */
- -->
+-->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
     <group id="o2ti_payment_subscription">
         <job name="o2ti_reorder" instance="O2TI\SubscriptionPayment\Cron\CreateNewOrder" method="execute">
-            <schedule>0 2 23 * *</schedule>
+            <schedule>* * * * *</schedule>
+        </job>
+
+        <job name="o2ti_reorder" instance="O2TI\SubscriptionPayment\Cron\CreateNewOrder" method="recovery">
+            <schedule>0 10 * * 1-5</schedule>
         </job>
     </group>
 </config>

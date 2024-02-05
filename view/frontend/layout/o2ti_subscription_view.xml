@@ -21,7 +21,8 @@
             </arguments>
         </referenceBlock>
         <referenceContainer name="content">
-            <block class="O2TI\SubscriptionPayment\Block\Account\Subscription" name="o2ti_account_subscription" template="O2TI_SubscriptionPayment::subscription.phtml" cacheable="false"/>
+            <block class="O2TI\SubscriptionPayment\Block\Account\Subscription\View" name="o2ti_subscription_view" cacheable="false">
+            </block>
         </referenceContainer>
     </body>
 </page>

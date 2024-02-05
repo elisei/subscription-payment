@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <!--
 /**
- * O2TI Webkul PagBank Module.
+ * O2TI Payment Subscription.
  *
- * Copyright © 2023 O2TI. All rights reserved.
+ * Copyright © 2024 O2TI. All rights reserved.
  *
  * @author    Bruno Elisei <brunoelisei@o2ti.com>
  * @license   See LICENSE for license details.
@@ -19,20 +19,8 @@
         </arguments>
     </type>
 
-     <type name="O2TI\SubscriptionPayment\Controller\Account\Subscription">
-        <arguments>
-            <argument name="resultPageFactory" xsi:type="object">Magento\Framework\View\Result\PageFactory</argument>
-            <argument name="customerSession" xsi:type="object">Magento\Customer\Model\Session\Proxy</argument>
-            <argument name="subscriptionCollectionFactory" xsi:type="object">O2TI\SubscriptionPayment\Model\ResourceModel\Subscription\CollectionFactory</argument>
-        </arguments>
-    </type>
-    
-    <type name="O2TI\SubscriptionPayment\Block\Account\Subscription">
-        <arguments>
-            <argument name="context" xsi:type="object">Magento\Framework\View\Element\Template\Context</argument>
-            <argument name="subscriptionCollectionFactory" xsi:type="object">O2TI\SubscriptionPayment\Model\ResourceModel\Subscription\CollectionFactory</argument>
-            <argument name="customerSession" xsi:type="object">Magento\Customer\Model\Session\Proxy</argument>
-        </arguments>
+    <type name="Magento\Vault\Api\PaymentTokenRepositoryInterface">
+        <plugin name="seumodulo_after_save_vault_card" type="O2TI\SubscriptionPayment\Plugin\BeforeSaveVaultCardPlugin" sortOrder="10"/>
     </type>
 
     <type name="PagBank\PaymentMagento\Observer\DataAssignCcObserver">

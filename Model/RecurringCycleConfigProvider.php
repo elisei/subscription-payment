@@ -1,8 +1,8 @@
 <?php
 /**
- * O2TI Flag Recurring Module.
+ * O2TI Payment Subscription.
  *
- * Copyright © 2023 O2TI. All rights reserved.
+ * Copyright © 2024 O2TI. All rights reserved.
  *
  * @author    Bruno Elisei <brunoelisei@o2ti.com>
  * @license   See LICENSE for license details.
@@ -62,6 +62,12 @@ class RecurringCycleConfigProvider implements ConfigProviderInterface
     {
         $storeId = $this->cart->getStoreId();
 
+        $recurringEnable = $this->scopeConfig->getValue(
+            'o2ti/payment_subscription_magento/enable',
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
         $recurringCycle = $this->scopeConfig->getValue(
             'o2ti/payment_subscription_magento/cycle_option',
             ScopeInterface::SCOPE_STORE,
@@ -72,9 +78,9 @@ class RecurringCycleConfigProvider implements ConfigProviderInterface
 
         return [
             'o2ti_payment_subscription_magento' => [
+                'enable'        => (bool) $recurringEnable,
                 'cycle_options' => is_array($result) ? $result : [],
             ],
         ];
     }
-
 }
