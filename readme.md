@@ -17,7 +17,7 @@ Esse é um módulo gratuito para permitir recorrência de pedidos usando PagBank
 
     [ ] Implementar assinatura por PIX e Boleto
 
-    [ ] Criar adminhtml para o backend
+    [ ] Criar adminhtml para gestão de assinaturas do cliente
 
     [ ] Criar API
 

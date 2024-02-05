@@ -1,12 +1,12 @@
 ## Melhorias Futuras
 
- [ ] Implementar assinatura por PIX e Boleto
+- [ ] Implementar assinatura por PIX e Boleto
 
- [ ] Criar adminhtml para o backend
+- [ ] Criar adminhtml para gestão de assinaturas do cliente
 
- [ ] Criar API
+- [ ] Criar API
 
- [ ] Melhorar os detalhes da assinatura
+- [ ] Melhorar os detalhes da assinatura
 
     - [ ] Trazer os produtos
 
