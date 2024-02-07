@@ -23,6 +23,9 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Notification\NotifierInterface as NotifierPool;
 use O2TI\SubscriptionPayment\Model\ResourceModel\Subscription\CollectionFactory as SubscriptionFactory;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Quote\Model\Quote\Address\Rate;
+use Magento\Quote\Model\Quote\Address\RateFactory;
+use Magento\Customer\Api\CustomerRepositoryInterface;
 
 /**
  * Place new Order subscription
@@ -67,11 +70,6 @@ class PlaceNewOrder extends AbstractModel
     protected $customerFactory;
 
     /**
-     * @var String
-     */
-    protected $paymentMethod;
-
-    /**
      * @var NotifierPool
      */
     protected $notifier;
@@ -87,6 +85,16 @@ class PlaceNewOrder extends AbstractModel
     protected $dateTime;
 
     /**
+     * @var RateFactory
+     */
+    protected $rateFactory;
+
+    /**
+     * @var CustomerRepositoryInterface
+     */
+    protected $customerRepository;
+
+    /**
      * Construct.
      *
      * @param CartRepositoryInterface $cartRepository
@@ -99,6 +107,8 @@ class PlaceNewOrder extends AbstractModel
      * @param DateTime $dateTime
      * @param NotifierPool $notifier
      * @param SubscriptionFactory $subscriptionFactory
+     * @param RateFactory $rateFactory
+     * @param CustomerRepositoryInterface $customerRepository
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -112,7 +122,9 @@ class PlaceNewOrder extends AbstractModel
         CustomerFactory $customerFactory,
         DateTime $dateTime,
         NotifierPool $notifier,
-        SubscriptionFactory $subscriptionFactory
+        SubscriptionFactory $subscriptionFactory,
+        RateFactory $rateFactory,
+        CustomerRepositoryInterface $customerRepository
     ) {
         $this->cartRepository = $cartRepository;
         $this->quoteFactory = $quoteFactory;
@@ -124,7 +136,8 @@ class PlaceNewOrder extends AbstractModel
         $this->dateTime = $dateTime;
         $this->notifier = $notifier;
         $this->subscriptionFactory = $subscriptionFactory;
-        $this->paymentMethod = 'pagbank_paymentmagento_cc_vault';
+        $this->rateFactory = $rateFactory;
+        $this->customerRepository = $customerRepository;
     }
 
     /**
@@ -137,49 +150,25 @@ class PlaceNewOrder extends AbstractModel
     public function createOrder($incrementId)
     {
         $order = $this->orderInterface->loadByIncrementId($incrementId);
-        $quoteId = $order->getQuoteId();
-        $paymentToken = null;
-        $existingQuote = $this->cartRepository->get($quoteId);
+        $quote = $this->createNewQuoteBasedOnOriginalOrder($order);
+        $subscription = $this->getSubscription($incrementId);
 
-        if ($existingQuote->getId()) {
-            $customerId = $existingQuote->getCustomerId();
-
-            if ($customerId) {
-                $customer = $this->customerFactory->create()->load($customerId);
-                $vaultPaymentMethod = $this->getCustomerVaultPaymentMethod($customer);
-
-                if ($vaultPaymentMethod) {
-                    $paymentToken = $vaultPaymentMethod->getPublicHash();
-                }
+        if ($quote->getId()) {
+            
+            if ($subscription->getPaymentMethod() === 'pagbank_paymentmagento_cc') {
+                $this->setQuoteForCc($quote);
             }
 
-            $existingQuote->setCustomerId($customerId);
+            if ($subscription->getPaymentMethod() === 'pagbank_paymentmagento_pix') {
+                $this->setQuoteForPix($quote);
+            }
 
-            $existingQuote->getPayment()->setMethod('pagbank_paymentmagento_cc_vault');
-
-            $payerName = $existingQuote->getPayment()->getAdditionalInformation('payer_name');
-            $payerTaxId = $existingQuote->getPayment()->getAdditionalInformation('payer_tax_id');
-            $payerPhone = $existingQuote->getPayment()->getAdditionalInformation('payer_phone');
-
-            $existingQuote->getPayment()->unsAdditionalInformation();
-
-            $existingQuote->getPayment()->save();
-
-            $dataToPay = [
-                'public_hash' => $paymentToken,
-                'customer_id' => $customerId,
-                'payer_name' => $payerName,
-                'payer_tax_id' => $payerTaxId,
-                'payer_phone' => $payerPhone,
-                'recurring_type' => 'SUBSEQUENT'
-            ];
-
-            $existingQuote->getPayment()->setAdditionalInformation($dataToPay);
-
-            $existingQuote->getPayment()->save();
+            if ($subscription->getPaymentMethod() === 'pagbank_paymentmagento_boleto') {
+                $this->setQuoteForBoleto($quote);
+            }
 
             try {
-                $newOrder = $this->quoteManagement->submit($existingQuote);
+                $newOrder = $this->quoteManagement->submit($quote);
 
                 $newOrder = $this->orderFactory->create()->load($newOrder->getId());
                 $newOrder->addStatusHistoryComment(
@@ -190,16 +179,20 @@ class PlaceNewOrder extends AbstractModel
             } catch (LocalizedException $exc) {
                 $header = __('Error creating order %1', $incrementId);
 
-                $description = __($exc->getMessage());
+                $msg = $exc->getMessage();
+
+                $description = __($msg);
 
                 $this->notifier->addCritical($header, $description);
                 
-                $this->updateSubscription($incrementId, 0);
+                $this->updateSubscription($subscription, 0);
+
+                $this->writeln('<error>'.$msg.'</error>');
                 
                 return 0;
             }
             
-            $this->updateSubscription($incrementId, 1);
+            $this->updateSubscription($subscription, 1);
 
             $message = __(
                 'New Order %1 criada para o pedido recorrente inicial',
@@ -209,8 +202,178 @@ class PlaceNewOrder extends AbstractModel
 
             return 1;
         }
+    }
 
-        return 0;
+    /**
+     * Create new quote based on original order.
+     *
+     * @param OrderInterface $originalOrder
+     * @return QuoteFactory
+     */
+    public function createNewQuoteBasedOnOriginalOrder($originalOrder)
+    {
+        $customerId = $originalOrder->getCustomerId();
+        $customerEmail = $originalOrder->getCustomerEmail();
+        $customer = $this->customerRepository->getById($customerId);
+
+        /** @var Quote $quote */
+        $quote = $this->quoteFactory->create();
+        $quote->setStoreId($originalOrder->getStoreId());
+        $quote->setCustomer($customer);
+        $quote->setCustomerId($customerId);
+        $quote->setCustomerEmail($customerEmail);
+
+        foreach ($originalOrder->getAllItems() as $item) {
+            $product = $item->getProduct();
+            $quote->addProduct(
+                $product,
+                $item->getQtyOrdered()
+            );
+        }
+
+        $shippingAddress = $originalOrder->getShippingAddress()->getData();
+        $quote->getShippingAddress()->setData($shippingAddress);
+
+        $billingAddress = $originalOrder->getBillingAddress()->getData();
+        $quote->getBillingAddress()->setData($billingAddress);
+
+        $shippingMethod = $originalOrder->getShippingMethod();
+        $quote->getShippingAddress()->setShippingMethod($shippingMethod);
+        $quote->getShippingAddress()->setCollectShippingRates(true);
+        $quote->getShippingAddress()->collectShippingRates();
+    
+        $quote->collectTotals();
+
+        $payment = $quote->getPayment();
+        $payment->setMethod($originalOrder->getPayment()->getMethod());
+
+        $discountAmount = $originalOrder->getDiscountAmount();
+
+        $quote->setSubtotalWithDiscount($quote->getSubtotalWithDiscount() - $discountAmount);
+        $quote->setBaseSubtotalWithDiscount($quote->getBaseSubtotalWithDiscount() - $discountAmount);
+
+        $quote->setSubtotal($quote->getSubtotal() - $discountAmount);
+        $quote->setBaseSubtotal($quote->getBaseSubtotal() - $discountAmount);
+        $quote->setGrandTotal($quote->getGrandTotal() - $discountAmount);
+        $quote->setBaseGrandTotal($quote->getBaseGrandTotal() - $discountAmount);
+
+        $quote->setPaymentMethod($payment);
+        $quote->collectTotals();
+        $quote->save();
+        return $quote;
+    }
+
+    /**
+     * Set Quote For Cc.
+     *
+     * @param CartRepositoryInterface $quote
+     */
+    public function setQuoteForCc($quote)
+    {
+        $paymentToken = null;
+        $customerId = $quote->getCustomerId();
+
+        if ($customerId) {
+            $customer = $this->customerFactory->create()->load($customerId);
+            $vaultPaymentMethod = $this->getCustomerVaultPaymentMethod($customer);
+
+            if ($vaultPaymentMethod) {
+                $paymentToken = $vaultPaymentMethod->getPublicHash();
+            }
+        }
+
+        $quote->setCustomerId($customerId);
+
+        $quote->getPayment()->setMethod('pagbank_paymentmagento_cc_vault');
+
+        $payerName = $quote->getPayment()->getAdditionalInformation('payer_name');
+        $payerTaxId = $quote->getPayment()->getAdditionalInformation('payer_tax_id');
+        $payerPhone = $quote->getPayment()->getAdditionalInformation('payer_phone');
+
+        $quote->getPayment()->unsAdditionalInformation();
+
+        $quote->getPayment()->save();
+
+        $dataToPay = [
+            'public_hash' => $paymentToken,
+            'customer_id' => $customerId,
+            'payer_name' => $payerName,
+            'payer_tax_id' => $payerTaxId,
+            'payer_phone' => $payerPhone,
+            'recurring_type' => 'SUBSEQUENT'
+        ];
+
+        $quote->getPayment()->setAdditionalInformation($dataToPay);
+
+        $quote->getPayment()->save();
+    }
+
+    /**
+     * Set Quote For Pix.
+     *
+     * @param CartRepositoryInterface $quote
+     */
+    public function setQuoteForPix($quote)
+    {
+        $customerId = $quote->getCustomerId();
+
+        $quote->setCustomerId($customerId);
+
+        $quote->getPayment()->setMethod('pagbank_paymentmagento_pix');
+
+        $payerName = $quote->getPayment()->getAdditionalInformation('payer_name');
+        $payerTaxId = $quote->getPayment()->getAdditionalInformation('payer_tax_id');
+        $payerPhone = $quote->getPayment()->getAdditionalInformation('payer_phone');
+
+        $quote->getPayment()->unsAdditionalInformation();
+
+        $quote->getPayment()->save();
+
+        $dataToPay = [
+            'customer_id' => $customerId,
+            'payer_name' => $payerName,
+            'payer_tax_id' => $payerTaxId,
+            'payer_phone' => $payerPhone,
+            'recurring_type' => 'SUBSEQUENT'
+        ];
+
+        $quote->getPayment()->setAdditionalInformation($dataToPay);
+
+        $quote->getPayment()->save();
+    }
+
+    /**
+     * Set Quote For Boleto.
+     *
+     * @param CartRepositoryInterface $quote
+     */
+    public function setQuoteForBoleto($quote)
+    {
+        $customerId = $quote->getCustomerId();
+
+        $quote->setCustomerId($customerId);
+
+        $quote->getPayment()->setMethod('pagbank_paymentmagento_boleto');
+
+        $payerName = $quote->getPayment()->getAdditionalInformation('payer_name');
+        $payerTaxId = $quote->getPayment()->getAdditionalInformation('payer_tax_id');
+        $payerPhone = $quote->getPayment()->getAdditionalInformation('payer_phone');
+
+        $quote->getPayment()->unsAdditionalInformation();
+
+        $quote->getPayment()->save();
+
+        $dataToPay = [
+            'customer_id' => $customerId,
+            'payer_name' => $payerName,
+            'payer_tax_id' => $payerTaxId,
+            'payer_phone' => $payerPhone,
+            'recurring_type' => 'SUBSEQUENT'
+        ];
+
+        $quote->getPayment()->setAdditionalInformation($dataToPay);
+
+        $quote->getPayment()->save();
     }
 
     /**
@@ -240,15 +403,11 @@ class PlaceNewOrder extends AbstractModel
     /**
      * Update current subscription.
      *
-     * @param string $incrementId
-     * @param bool   $status
+     * @param \O2TI\SubscriptionPayment\Model\ResourceModel\Subscription\Collection $subscription
+     * @param bool                                                                  $status
      */
-    private function updateSubscription($incrementId, $status)
+    private function updateSubscription($subscription, $status)
     {
-        $collection = $this->subscriptionFactory->create();
-
-        $collection->addFieldToFilter('order_id', $incrementId);
-        $subscription = $collection->getFirstItem();
         $cycle = $this->convertTime($subscription->getCycle());
         
         if (!$status) {
@@ -262,6 +421,22 @@ class PlaceNewOrder extends AbstractModel
         $subscription->setHasError($status);
 
         $subscription->save();
+    }
+
+    /**
+     * Get Subscription.
+     *
+     * @param string $incrementId
+     * @return \O2TI\SubscriptionPayment\Model\ResourceModel\Subscription\Collection $subscription
+     */
+    private function getSubscription($incrementId)
+    {
+        $collection = $this->subscriptionFactory->create();
+
+        $collection->addFieldToFilter('order_id', $incrementId);
+        $subscription = $collection->getFirstItem();
+
+        return $subscription;
     }
 
     /**

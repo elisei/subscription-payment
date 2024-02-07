@@ -45,7 +45,7 @@ class CreateNewOrder
     public function execute()
     {
         $currentTime = date('Y-m-d H:i:s');
-        $nextHourTime = date('Y-m-d H:i:s', strtotime('+2 hour', strtotime($currentTime)));
+        $nextHourTime = date('Y-m-d H:i:s', strtotime('+ 30 min', strtotime($currentTime)));
 
         $subscriptionFactory = $this->subscriptionFactory->create();
         $subscriptionFactory->addFieldToFilter('state', 1)

@@ -10,19 +10,22 @@ Esse é um módulo gratuito para permitir recorrência de pedidos usando PagBank
 
 ## Recursos
 - Cria vendas baseado em pedidos
+- Pagamento recorrente com Cartão, Pix e Boleto
 - Notificação do administrador sobre falhas de novos ciclos
 - Gerenciamento de assinatura para o cliente
+- Recalculo de valores baseado no cenário do momento da venda
 
 ## Melhorias Futuras
 
-    [ ] Implementar assinatura por PIX e Boleto
+- [x] Implementar assinatura por PIX e Boleto
 
-    [ ] Criar adminhtml para gestão de assinaturas do cliente
+- [ ] Criar adminhtml para gestão de assinaturas do cliente
 
-    [ ] Criar API
+- [ ] Criar API
 
-    [ ] Melhorar os detalhes da assinatura
+- [ ] Melhorar os detalhes da assinatura
 
-        - [ ] Trazer os produtos
+    - [ ] Trazer os produtos
 
-        - [ ] Trazer detalhes de endereço
+    - [ ] Trazer detalhes de endereço
+

@@ -1,8 +1,8 @@
 <!--
 /**
- * O2TI Payment Subscription.
+ * PagBank Payment Magento Module.
  *
- * Copyright © 2024 O2TI. All rights reserved.
+ * Copyright © 2023 PagBank. All rights reserved.
  *
  * @author    Bruno Elisei <brunoelisei@o2ti.com>
  * @license   See LICENSE for license details.
@@ -33,8 +33,8 @@
     </div>
     <div class="payment-method-content">
         <each args="getRegion('messages')" render=""></each>
-        <form class="form" id="pagbank-form-cc" method="post" afterRender="initFormElement">
-            <render args="ccForm"></render>
+        <form class="form" id="co-payment-form" method="post" afterRender="initFormElement">
+            <render args="boletoForm"></render>
         </form>
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
@@ -44,7 +44,6 @@
         <div class="checkout-agreements-block">
             <each args="$parent.getRegion('before-place-order')" render=""></each>
         </div>
-
         <!-- ko if: getSubscriptionEnable() -->
         <div class="field choice vault">
             <input type="checkbox"
@@ -68,7 +67,7 @@
                             <div class="control pagbank-input-group">
                                 <select  name="payment[recurring_cycle]"
                                         class="select select-month"
-                                        data-bind="attr: {id: getCode() + '_recurring_cycle', 'data-container': getCode() + '-cc-recurring-cycle', 'data-validate': JSON.stringify({required:true})},
+                                        data-bind="attr: {id: getCode() + '_recurring_cycle', 'data-container': getCode() + '-boleto-recurring-cycle', 'data-validate': JSON.stringify({required:true})},
                                                     enable: isActive($parents),
                                                     options: getCycleOptions(),
                                                     optionsValue: 'value',
@@ -86,7 +85,6 @@
             </fieldset>
             <!-- /ko -->
         <!-- /ko -->
-
         <div class="actions-toolbar">
             <div class="primary">
                 <button class="action primary checkout"

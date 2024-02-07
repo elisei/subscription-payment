@@ -12,14 +12,13 @@ define([
 ], function (wrapper) {
     'use strict';
 
-    var ccMixin = {
+    var pixMixin = {
 
         defaults: {
             active: false,
-            template: 'O2TI_SubscriptionPayment/payment/cc-mixin',
-            ccForm: 'PagBank_PaymentMagento/payment/cc-form',
+            pixForm: 'PagBank_PaymentMagento/payment/pix-form',
             payerForm: 'PagBank_PaymentMagento/payment/payer-form',
-            creditCardNumberToken: '',
+            template: 'O2TI_SubscriptionPayment/payment/pix-mixin',
             recurringActive: true,
             recurringType: 'INITIAL',
             recurringCycle: ''
@@ -78,6 +77,6 @@ define([
     };
 
     return function (target) {
-        return target.extend(ccMixin);
+        return target.extend(pixMixin);
     };
 });

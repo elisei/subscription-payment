@@ -19,12 +19,24 @@
         </arguments>
     </type>
 
+    <!-- Plugin para Definir o Cartão salvo como usavel para assinatura -->
     <type name="Magento\Vault\Api\PaymentTokenRepositoryInterface">
-        <plugin name="seumodulo_after_save_vault_card" type="O2TI\SubscriptionPayment\Plugin\BeforeSaveVaultCardPlugin" sortOrder="10"/>
+        <plugin name="o2ti_after_save_vault_card" type="O2TI\SubscriptionPayment\Plugin\BeforeSaveVaultCardPlugin" sortOrder="10"/>
     </type>
 
+    <!-- Plugin para capturar detalhes de pagamento da assinatura - Cc -->
     <type name="PagBank\PaymentMagento\Observer\DataAssignCcObserver">
         <plugin name="pagbank_payment_subscription_cc_data_assign_plugin" type="O2TI\SubscriptionPayment\Observer\DataAssignCcObserverPlugin" sortOrder="10" />
+    </type>
+
+    <!-- Plugin para capturar detalhes de pagamento da assinatura - Pix e Boleto -->
+    <type name="PagBank\PaymentMagento\Observer\DataAssignPayerDataObserver">
+        <plugin name="pagbank_payment_subscription_cc_data_assign_plugin" type="O2TI\SubscriptionPayment\Observer\DataAssignPayerDataObserverPlugin" sortOrder="10" />
+    </type>
+
+    <!-- Altera prazo de pagamento do PIX para + 1 dia -->
+    <type name="PagBank\PaymentMagento\Gateway\Request\QrCodeExpirationDateDataRequest">
+        <plugin name="pagbank_payment_subscription_cc_data_assign_plugin" type="O2TI\SubscriptionPayment\Plugin\ModifyQrCodeExpirationDate" sortOrder="10" />
     </type>
 
     <!-- Plugin for popule subscription data -->
