@@ -15,7 +15,7 @@ namespace O2TI\SubscriptionPayment\Model;
 use Magento\Payment\Model\Method\Logger;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class AbstractModel
+abstract class AbstractModel
 {
     /**
      * @var Logger

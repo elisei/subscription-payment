@@ -1,6 +1,6 @@
 ## Melhorias Futuras
 
-- [ ] Implementar assinatura por PIX e Boleto
+- [X] Implementar assinatura por PIX e Boleto
 
 - [ ] Criar adminhtml para gestão de assinaturas do cliente
 

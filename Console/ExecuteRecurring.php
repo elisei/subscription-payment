@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace O2TI\SubscriptionPayment\Console;
 
 use Magento\Framework\App\State;
-use O2TI\SubscriptionPayment\Model\PlaceNewOrder;
+use O2TI\SubscriptionPayment\Model\Subscription\PlaceNewOrder;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

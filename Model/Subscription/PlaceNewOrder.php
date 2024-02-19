@@ -8,24 +8,22 @@
  * @license   See LICENSE for license details.
  */
 
-namespace O2TI\SubscriptionPayment\Model;
+namespace O2TI\SubscriptionPayment\Model\Subscription;
 
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Notification\NotifierInterface as NotifierPool;
+use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Model\OrderFactory;
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Vault\Model\ResourceModel\PaymentToken\CollectionFactory as PaymentTokenCollectionFactory;
-use Magento\Customer\Model\CustomerFactory;
 use Magento\Vault\Model\VaultPaymentInterface;
 use O2TI\SubscriptionPayment\Model\AbstractModel;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Notification\NotifierInterface as NotifierPool;
 use O2TI\SubscriptionPayment\Model\ResourceModel\Subscription\CollectionFactory as SubscriptionFactory;
-use Magento\Framework\Stdlib\DateTime\DateTime;
-use Magento\Quote\Model\Quote\Address\Rate;
-use Magento\Quote\Model\Quote\Address\RateFactory;
-use Magento\Customer\Api\CustomerRepositoryInterface;
+use O2TI\SubscriptionPayment\Model\Email\EmailNotification;
 
 /**
  * Place new Order subscription
@@ -65,11 +63,6 @@ class PlaceNewOrder extends AbstractModel
     protected $vaultFactory;
 
     /**
-     * @var CustomerFactory
-     */
-    protected $customerFactory;
-
-    /**
      * @var NotifierPool
      */
     protected $notifier;
@@ -85,14 +78,14 @@ class PlaceNewOrder extends AbstractModel
     protected $dateTime;
 
     /**
-     * @var RateFactory
-     */
-    protected $rateFactory;
-
-    /**
      * @var CustomerRepositoryInterface
      */
     protected $customerRepository;
+
+    /**
+     * @var EmailNotification
+     */
+    protected $emailNotification;
 
     /**
      * Construct.
@@ -103,12 +96,11 @@ class PlaceNewOrder extends AbstractModel
      * @param OrderFactory $orderFactory
      * @param OrderInterface $orderInterface
      * @param PaymentTokenCollectionFactory $vaultFactory
-     * @param CustomerFactory $customerFactory
      * @param DateTime $dateTime
      * @param NotifierPool $notifier
      * @param SubscriptionFactory $subscriptionFactory
-     * @param RateFactory $rateFactory
      * @param CustomerRepositoryInterface $customerRepository
+     * @param EmailNotification $emailNotification
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -119,12 +111,11 @@ class PlaceNewOrder extends AbstractModel
         OrderFactory $orderFactory,
         OrderInterface $orderInterface,
         PaymentTokenCollectionFactory $vaultFactory,
-        CustomerFactory $customerFactory,
         DateTime $dateTime,
         NotifierPool $notifier,
         SubscriptionFactory $subscriptionFactory,
-        RateFactory $rateFactory,
-        CustomerRepositoryInterface $customerRepository
+        CustomerRepositoryInterface $customerRepository,
+        EmailNotification $emailNotification
     ) {
         $this->cartRepository = $cartRepository;
         $this->quoteFactory = $quoteFactory;
@@ -132,12 +123,11 @@ class PlaceNewOrder extends AbstractModel
         $this->orderFactory = $orderFactory;
         $this->orderInterface = $orderInterface;
         $this->vaultFactory = $vaultFactory;
-        $this->customerFactory = $customerFactory;
         $this->dateTime = $dateTime;
         $this->notifier = $notifier;
         $this->subscriptionFactory = $subscriptionFactory;
-        $this->rateFactory = $rateFactory;
         $this->customerRepository = $customerRepository;
+        $this->emailNotification = $emailNotification;
     }
 
     /**
@@ -169,13 +159,15 @@ class PlaceNewOrder extends AbstractModel
 
             try {
                 $newOrder = $this->quoteManagement->submit($quote);
-
                 $newOrder = $this->orderFactory->create()->load($newOrder->getId());
                 $newOrder->addStatusHistoryComment(
                     __('Order renewal carried out for initial order: %1.', $incrementId)
                 );
-    
+
+                $this->emailNotification->sendCustomEmail($newOrder);
+
                 $newOrder->save();
+
             } catch (LocalizedException $exc) {
                 $header = __('Error creating order %1', $incrementId);
 
@@ -274,7 +266,7 @@ class PlaceNewOrder extends AbstractModel
         $customerId = $quote->getCustomerId();
 
         if ($customerId) {
-            $customer = $this->customerFactory->create()->load($customerId);
+            $customer = $this->customerRepository->getById($customerId);
             $vaultPaymentMethod = $this->getCustomerVaultPaymentMethod($customer);
 
             if ($vaultPaymentMethod) {
@@ -286,20 +278,9 @@ class PlaceNewOrder extends AbstractModel
 
         $quote->getPayment()->setMethod('pagbank_paymentmagento_cc_vault');
 
-        $payerName = $quote->getPayment()->getAdditionalInformation('payer_name');
-        $payerTaxId = $quote->getPayment()->getAdditionalInformation('payer_tax_id');
-        $payerPhone = $quote->getPayment()->getAdditionalInformation('payer_phone');
-
-        $quote->getPayment()->unsAdditionalInformation();
-
-        $quote->getPayment()->save();
-
         $dataToPay = [
             'public_hash' => $paymentToken,
             'customer_id' => $customerId,
-            'payer_name' => $payerName,
-            'payer_tax_id' => $payerTaxId,
-            'payer_phone' => $payerPhone,
             'recurring_type' => 'SUBSEQUENT'
         ];
 
@@ -321,19 +302,8 @@ class PlaceNewOrder extends AbstractModel
 
         $quote->getPayment()->setMethod('pagbank_paymentmagento_pix');
 
-        $payerName = $quote->getPayment()->getAdditionalInformation('payer_name');
-        $payerTaxId = $quote->getPayment()->getAdditionalInformation('payer_tax_id');
-        $payerPhone = $quote->getPayment()->getAdditionalInformation('payer_phone');
-
-        $quote->getPayment()->unsAdditionalInformation();
-
-        $quote->getPayment()->save();
-
         $dataToPay = [
             'customer_id' => $customerId,
-            'payer_name' => $payerName,
-            'payer_tax_id' => $payerTaxId,
-            'payer_phone' => $payerPhone,
             'recurring_type' => 'SUBSEQUENT'
         ];
 
@@ -355,19 +325,8 @@ class PlaceNewOrder extends AbstractModel
 
         $quote->getPayment()->setMethod('pagbank_paymentmagento_boleto');
 
-        $payerName = $quote->getPayment()->getAdditionalInformation('payer_name');
-        $payerTaxId = $quote->getPayment()->getAdditionalInformation('payer_tax_id');
-        $payerPhone = $quote->getPayment()->getAdditionalInformation('payer_phone');
-
-        $quote->getPayment()->unsAdditionalInformation();
-
-        $quote->getPayment()->save();
-
         $dataToPay = [
             'customer_id' => $customerId,
-            'payer_name' => $payerName,
-            'payer_tax_id' => $payerTaxId,
-            'payer_phone' => $payerPhone,
             'recurring_type' => 'SUBSEQUENT'
         ];
 

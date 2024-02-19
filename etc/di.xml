@@ -19,6 +19,17 @@
         </arguments>
     </type>
 
+    <type name="O2TI\SubscriptionPayment\Model\Email\EmailNotification">
+        <arguments>
+            <argument name="templateContainer" xsi:type="object">Magento\Sales\Model\Order\Email\Container\Template</argument>
+            <argument name="identity" xsi:type="object">O2TI\SubscriptionPayment\Model\Email\Container\SubscriptionIdentity</argument>
+            <argument name="logger" xsi:type="object">Psr\Log\LoggerInterface</argument>
+            <argument name="senderBuilderFactory" xsi:type="object">Magento\Sales\Model\Order\Email\SenderBuilderFactory</argument>
+            <argument name="addressRenderer" xsi:type="object">Magento\Sales\Model\Order\Address\Renderer</argument>
+            <argument name="paymentHelper" xsi:type="object">Magento\Payment\Helper\Data</argument>
+        </arguments>
+    </type>
+
     <!-- Plugin para Definir o Cartão salvo como usavel para assinatura -->
     <type name="Magento\Vault\Api\PaymentTokenRepositoryInterface">
         <plugin name="o2ti_after_save_vault_card" type="O2TI\SubscriptionPayment\Plugin\BeforeSaveVaultCardPlugin" sortOrder="10"/>

@@ -11,7 +11,7 @@
 namespace O2TI\SubscriptionPayment\Cron;
 
 use O2TI\SubscriptionPayment\Model\ResourceModel\Subscription\CollectionFactory;
-use O2TI\SubscriptionPayment\Model\PlaceNewOrder;
+use O2TI\SubscriptionPayment\Model\Subscription\PlaceNewOrder;
 
 class CreateNewOrder
 {
