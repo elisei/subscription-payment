@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <!-- <menu>
+        <add id="O2TI_SubscriptionPayment::subscription_menu" title="Subscriptions" module="O2TI_SubscriptionPayment" sortOrder="90" resource="O2TI_SubscriptionPayment::subscription" parent="Magento_Sales::sales"/>
+        <add id="O2TI_SubscriptionPayment::subscription_list" title="Subscription List" module="O2TI_SubscriptionPayment" sortOrder="10" action="o2ti_subscriptionpayment/subscription/index" parent="O2TI_SubscriptionPayment::subscription_menu" resource="O2TI_SubscriptionPayment::subscription_access"/>
+    </menu> -->
+</config>

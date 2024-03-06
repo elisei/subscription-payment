@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">subscription_payment_subscription_listing.subscription_payment_subscription_listing_data_source</item>
+        </item>
+        <item name="spinner" xsi:type="string">subscription_payment_columns</item>
+    </argument>
+    <dataSource name="subscription_payment_subscription_listing_data_source">
+        <argument name="dataProvider" xsi:type="configurableObject">
+            <argument name="class" xsi:type="string">O2TI\SubscriptionPayment\Ui\Component\Listing\SubscriptionDataProvider</argument>
+            <argument name="name" xsi:type="string">subscription_payment_subscription_listing_data_source</argument>
+            <argument name="primaryFieldName" xsi:type="string">subscription_id</argument>
+            <argument name="requestFieldName" xsi:type="string">subscription_id</argument>
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="component" xsi:type="string">Magento_Ui/js/grid/provider</item>
+                    <item name="update_url" xsi:type="url" path="mui/index/render"/>
+                     <item name="storageConfig" xsi:type="array">
+                        <item name="indexField" xsi:type="string">subscription_id</item>
+                    </item>
+                </item>
+            </argument>
+        </argument>
+    </dataSource>
+    
+    <columns name="subscription_payment_columns">
+        <column name="subscription_id" component="Magento_Ui/js/grid/columns/column" sortOrder="10">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Subscription ID</label>
+            </settings>
+        </column>
+        <!-- Adicione outras colunas conforme necessário -->
+    </columns>
+</listing>

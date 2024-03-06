@@ -30,6 +30,9 @@
         </arguments>
     </type>
 
+    <!-- API -->
+    <preference for="O2TI\SubscriptionPayment\Api\SubscriptionRepositoryInterface" type="O2TI\SubscriptionPayment\Model\SubscriptionRepository"/>
+
     <!-- Plugin para Definir o Cartão salvo como usavel para assinatura -->
     <type name="Magento\Vault\Api\PaymentTokenRepositoryInterface">
         <plugin name="o2ti_after_save_vault_card" type="O2TI\SubscriptionPayment\Plugin\BeforeSaveVaultCardPlugin" sortOrder="10"/>

@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * O2TI Payment Subscription.
+ *
+ * Copyright © 2024 O2TI. All rights reserved.
+ *
+ * @author    Bruno Elisei <brunoelisei@o2ti.com>
+ * @license   See LICENSE for license details.
+ */
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <route url="/V1/o2ti-payment-subscriptions" method="GET">
+        <service class="O2TI\SubscriptionPayment\Api\SubscriptionRepositoryInterface" method="getList"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+    </route>
+    <route url="/V1/o2ti-payment-subscriptions/:id" method="GET">
+        <service class="O2TI\SubscriptionPayment\Api\SubscriptionRepositoryInterface" method="getById"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+    </route>
+    <route url="/V1/o2ti-payment-subscriptions/:id" method="DELETE">
+        <service class="O2TI\SubscriptionPayment\Api\SubscriptionRepositoryInterface" method="delete"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+    </route>
+    <route url="/V1/o2ti-payment-subscriptions" method="POST">
+        <service class="O2TI\SubscriptionPayment\Api\SubscriptionRepositoryInterface" method="save"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+    </route>
+</routes>
